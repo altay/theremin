@@ -16,14 +16,16 @@ $(document).ready(function(){
   // use log instead of console.log
   function log(msg) { if (typeof console!='undefined') { console.log(msg); }}
 
+  var INITIAL_FREQ = 523.25;
+
   // logarithmic jquery slider - maps slider position to output frequency
   var logslider = function(position) {
     // slider position is 0-100
     var minp = 0;
     var maxp = 100;
     // frequency is 440-880Hz
-    var minv = Math.log(440);
-    var maxv = Math.log(880);
+    var minv = Math.log(INITIAL_FREQ);
+    var maxv = Math.log(INITIAL_FREQ * 2);
     var scale = (maxv-minv) / (maxp-minp); // calculate adjustment factor
     return Math.exp(minv + scale*(position-minp));
   }
@@ -31,8 +33,7 @@ $(document).ready(function(){
   // sine wave => gain control => output
   var AudioletApp = function() {
     this.audiolet = new Audiolet();
-    log(this.audiolet);
-    this.sine = new Sine(this.audiolet, 440);
+    this.sine = new Sine(this.audiolet, INITIAL_FREQ);
     this.gain = new Gain(this.audiolet);
     this.sine.connect(this.gain);
     this.gain.connect(this.audiolet.output);
@@ -52,19 +53,21 @@ $(document).ready(function(){
     }
   });
 
-  var NOTE = "A";
+  var NOTE = "C";
   // scale slider
   //var sLabel = $('#s-label'); 
-  var baseNote = Note.fromLatin('A4');
+  //var baseNote = Note.fromLatin('C5');
   //var scale = baseNote.scale('major');
   //scale.push(baseNote.add('octave'));
-  var scale = ["A","B","C","D","E","F","G","A"];
+  //var scale = ["A","B","C","D","E","F","G","A"];
+  var scale = ["C","D","E","F","G","A","B","C"];
   var sSlider = $("#s-slider").slider({
     min: 0,
     max: 7,
     change: function(e,ui) { 
       //var selectedNote = scale[ui.value];
       NOTE = scale[ui.value];
+      OCTAVE = (ui.value > 6 ? 6 : 5);
       //sLabel.text(selectedNote.latin());
       setLabel();
       setFreq();
@@ -76,7 +79,7 @@ $(document).ready(function(){
   var currentNote = function(){ return (Note.fromLatin(NOTE+OCTAVE)); }
   var setFreq = function(){ theSound.sine.frequency.setValue(currentNote().frequency()); }
   var setLabel = function(){ noteLabel.text(currentNote().latin()); }
-  var OCTAVE = 4;
+  var OCTAVE = 5;
   // octave slider
   var oSlider = $("o-slider").slider({
     min: 0,
@@ -109,15 +112,31 @@ theremin.addEventListener('userengaged', function(user) {
   log('user engaged');
   user.addEventListener('userupdate', function(user) {
     //log('user update');
-    var vEnabled = $('#v-enable').is(':checked');
-    //if ((new Date() * 1)%5 == 1) { // sample less often
+    var vEnabled = $('#v-enable').is(':checked'); // use kinect for volume control?
+    var sEnabled = $('#s-enable').is(':checked'); // use discrete scale? 
+    if ((new Date() * 1)%2 == 1) { // sample less often
       var x = user.skeleton[zig.Joint.RightHand].position[0];
-      var y = user.skeleton[zig.Joint.LeftHand].position[1];
-      fSlider.slider('value',x/5);
-      vSlider.slider('value',(vEnabled ? ((y+400)/5) : 50));
+      //var y = user.skeleton[zig.Joint.LeftHand].position[1];
+      var y = user.skeleton[zig.Joint.RightHand].position[1];
+      if (sEnabled) {
+        sSlider.slider('value',Math.round(x/100)); // change note slider
+      } else {
+        fSlider.slider('value',x/5); // change frequency slider
+      }
+      vSlider.slider('value',(vEnabled ? ((y+400)/5) : 50)); // change volume slider
 //      $('#radar').css({'left':x,'top':(vEnabled ? (0-y) : 0)});
-    //}
+    }
   });
+  // WaveDetector
+  var sToggle = $('#s-enable');
+  var waveDetector = zig.controls.WaveDetector();
+  waveDetector.numberOfWaves = 3;
+  waveDetector.addEventListener('wave', function(pd) {
+    console.log('WaveDetector: Wave');
+    sToggle.prop("checked", !sToggle.prop("checked"));
+  });
+  log(waveDetector);
+  zig.singleUserSession.addListener(waveDetector);
 });
 theremin.addEventListener('userdisengaged', function(user) {
   log('User disengaged: ' + user.id);
@@ -208,13 +227,18 @@ zig.addListener(theremin);
 <div class='container'>
   <img style='float:right' src='https://img.skitch.com/20120329-dgndnbe7jx5wxi7y31p5asdkf6.png' />
   <img src='https://img.skitch.com/20120329-8n47ff2bh8waycrr97gyusa6n5.png' />
-  <h2>Frequency: <span id='f-label'>440</span> Hz</h2>
+  <h2>Frequency: <span id='f-label'>523.25</span> Hz</h2>
   <div id='f-slider' class='slider'></div>
-  <h2 style='display:none'>Note: <span id='note-label'>A</span></h2>
-  <div style='display:none' id='s-slider' class='slider'></div>
+  <h2>
+    Note: <span id='note-label'>C</span>
+    <input id='s-enable' type='checkbox'  name='s-enable' />
+    <label for='s-enable'>Snap to scale</label>
+  </h2>
+  <div id='s-slider' class='slider'></div>
   <h2>
     Volume: <span id='v-label'>100</span>%
     <input id='v-enable' type='checkbox' checked='checked' name='v-enable' />
+    <!--<input id='v-enable' type='checkbox'  name='v-enable' />-->
     <label for='v-enable'>Enable gesture control</label>
   </h2>
   <div id='v-slider' class='slider'></div>

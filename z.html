@@ -5,6 +5,7 @@
 <script src='http://cdn.zigfu.com/zigjs/zig.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
+<!--<script src='js/Audiolet.min.js'></script>-->
 <script src='js/Audiolet.min.js'></script>
 <script src='js/music.js'></script>
 <link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'></link>
@@ -30,6 +31,7 @@ $(document).ready(function(){
   // sine wave => gain control => output
   var AudioletApp = function() {
     this.audiolet = new Audiolet();
+    log(this.audiolet);
     this.sine = new Sine(this.audiolet, 440);
     this.gain = new Gain(this.audiolet);
     this.sine.connect(this.gain);
@@ -106,14 +108,14 @@ var theremin = zig.EngageUsersWithSkeleton(1);
 theremin.addEventListener('userengaged', function(user) {
   log('user engaged');
   user.addEventListener('userupdate', function(user) {
-    log('user update');
+    //log('user update');
     var vEnabled = $('#v-enable').is(':checked');
     //if ((new Date() * 1)%5 == 1) { // sample less often
       var x = user.skeleton[zig.Joint.RightHand].position[0];
       var y = user.skeleton[zig.Joint.LeftHand].position[1];
       fSlider.slider('value',x/5);
       vSlider.slider('value',(vEnabled ? ((y+400)/5) : 50));
-      $('#radar').css({'left':x,'top':(vEnabled ? (0-y) : 0)});
+//      $('#radar').css({'left':x,'top':(vEnabled ? (0-y) : 0)});
     //}
   });
 });

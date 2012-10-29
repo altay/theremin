@@ -1,0 +1,3 @@
+[submodule "Audiolet"]
+	path = Audiolet
+	url = https://github.com/oampo/Audiolet.git

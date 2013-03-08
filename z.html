@@ -5,7 +5,6 @@
 <script src='http://cdn.zigfu.com/zigjs/zig.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
 <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
-<!--<script src='js/Audiolet.min.js'></script>-->
 <script src='js/Audiolet.min.js'></script>
 <script src='js/music.js'></script>
 <link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css'></link>
@@ -116,8 +115,8 @@ theremin.addEventListener('userengaged', function(user) {
     var sEnabled = $('#s-enable').is(':checked'); // use discrete scale? 
     if ((new Date() * 1)%2 == 1) { // sample less often
       var x = user.skeleton[zig.Joint.RightHand].position[0];
-      //var y = user.skeleton[zig.Joint.LeftHand].position[1];
-      var y = user.skeleton[zig.Joint.RightHand].position[1];
+      var y = user.skeleton[zig.Joint.LeftHand].position[1];
+      //var y = user.skeleton[zig.Joint.RightHand].position[1];
       if (sEnabled) {
         sSlider.slider('value',Math.round(x/100)); // change note slider
       } else {
@@ -232,7 +231,7 @@ zig.addListener(theremin);
   <h2>
     Note: <span id='note-label'>C</span>
     <input id='s-enable' type='checkbox'  name='s-enable' />
-    <label for='s-enable'>Snap to scale</label>
+    <label for='s-enable'>Snap to scale (Wave with your left hand to toggle)</label>
   </h2>
   <div id='s-slider' class='slider'></div>
   <h2>

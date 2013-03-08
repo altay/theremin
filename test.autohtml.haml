@@ -1,0 +1,22 @@
+!!!
+%html
+  %head
+    %script(src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+    %script(src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js")
+    %link(rel='stylesheet' href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery.ui.all.css')
+    %style(type='text/css')
+      :sass
+        .slider_container
+          margin: 100px auto
+          width: 50%
+    :javascript
+      $(document).ready(function(){
+        $('.slider').slider();
+      })
+      
+
+  %body
+    - sliders = ['slider1','slider2','slider3']
+    - sliders.each do |slider|
+      %div.slider_container
+        %div.slider(id=slider)

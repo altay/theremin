@@ -126,6 +126,7 @@ theremin.addEventListener('userengaged', function(user) {
 //      $('#radar').css({'left':x,'top':(vEnabled ? (0-y) : 0)});
     }
   });
+  /*
   // WaveDetector
   var sToggle = $('#s-enable');
   var waveDetector = zig.controls.WaveDetector();
@@ -136,6 +137,17 @@ theremin.addEventListener('userengaged', function(user) {
   });
   log(waveDetector);
   zig.singleUserSession.addListener(waveDetector);
+  */
+  // WaveDetector
+  var sToggle = $('#s-enable');
+  var pushDetector = zig.controls.PushDetector();
+  pushDetector.numberOfpushs = 3;
+  pushDetector.addEventListener('push', function(pd) {
+    console.log('pushDetector: push');
+    sToggle.prop("checked", !sToggle.prop("checked"));
+  });
+  log(pushDetector);
+  zig.singleUserSession.addListener(pushDetector);
 });
 theremin.addEventListener('userdisengaged', function(user) {
   log('User disengaged: ' + user.id);
@@ -231,7 +243,7 @@ zig.addListener(theremin);
   <h2>
     Note: <span id='note-label'>C</span>
     <input id='s-enable' type='checkbox'  name='s-enable' />
-    <label for='s-enable'>Snap to scale (Wave with your left hand to toggle)</label>
+    <label for='s-enable'>Snap to scale (Punch forward with your right hand to toggle)</label>
   </h2>
   <div id='s-slider' class='slider'></div>
   <h2>
